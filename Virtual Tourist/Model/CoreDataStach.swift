@@ -63,7 +63,7 @@ class CoreDataStack {
         }
         
         self.dbURL = docUrl.appendingPathComponent("model.sqlite")
-        
+        print(dbURL)
         // Options for migration
         let options = [NSInferMappingModelAutomaticallyOption: true,NSMigratePersistentStoresAutomaticallyOption: true]
         
@@ -120,7 +120,7 @@ extension CoreDataStack {
 
 extension CoreDataStack {
     
-    func save() {
+    func saveContext() {
         // We call this synchronously, but it's a very fast
         // operation (it doesn't hit the disk). We need to know
         // when it ends so we can call the next save (on the persisting
@@ -166,6 +166,10 @@ extension CoreDataStack {
         }
     }
     
-    
+    func applicationDocumentsDirectory() {
+        if let url = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).last {
+            print(url.absoluteString)
+        }
+    }
     
 }

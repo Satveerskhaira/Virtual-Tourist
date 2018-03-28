@@ -13,34 +13,51 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     
-    // Properties
+    // MARK: Properties
     var cordinates = CLLocationCoordinate2D()
-    let flickerConnect = FlickerClient.sharedInstance()
     
-    // Get the stack
+     //Get the stack
     let delegate = UIApplication.shared.delegate as! AppDelegate
     
+     //FetechRequestController
     
-    // FetechRequestController
     
-    // MARK: Properties
     lazy var fetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: LocationCD.self))
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "latitudeCD", ascending: false), NSSortDescriptor(key: "longitudeCD", ascending: false)]
-        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "latiduteCD", ascending: false), NSSortDescriptor(key: "longitudeCD", ascending: false)]
+        let context = delegate.stack.context
+        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
         frc.delegate = self
         return frc
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        executeSearch()
+        
         //Set MapView delegate
         mapView.delegate = self
         let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation))
         mapView.addGestureRecognizer(longGesture)
+        
+        
+        // Load Annotation on map
+       
+        for loc in fetchedhResultController.fetchedObjects as! [LocationCD] {
+            loadAnnotation(loc.latiduteCD, long: loc.longitudeCD)
+        }
+    
     }
 
-
+    // MARK : Add annotation
+    
+    func loadAnnotation(_ lat : Double, long : Double) {
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+        mapView.addAnnotation(annotation)
+        
+    }
+    
     @IBAction func addAnnotation( _ longGesture: UILongPressGestureRecognizer ) {
         
         let locationOnView = longGesture.location(in: mapView)
@@ -51,6 +68,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         mapView.addAnnotation(annotation)
         
         // Save to CareData
+        //_ = LocationCD(latitude: cordinates.longitude, longitude: cordinates.longitude, context: delegate.stack.context)
         saveLocationCD(cordinates.latitude, cordinates.longitude)
     }
 }
@@ -61,7 +79,8 @@ extension ViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let viewController = segue.destination as! FlickrCollectionViewController
-        viewController.cordinates = self.cordinates
+        viewController.cordinates = self.cordinates // get this from fetchRequestController
+        // Location object
     }
 }
 
@@ -77,17 +96,12 @@ extension ViewController {
     
     // Save data
     func saveLocationCD(_ latitude : Double, _ Longitude : Double) {
-        let context = fetchedhResultController.managedObjectContext
-
+        let context = delegate.stack.context
         if let locationEntity = NSEntityDescription.insertNewObject(forEntityName: "LocationCD", into: context) as? LocationCD {
             locationEntity.latiduteCD = latitude
             locationEntity.longitudeCD = Longitude
-            do {
-                try context.save()
+                delegate.stack.saveContext()
                 executeSearch()
-            } catch let error {
-                print(error)
-            }
         }
     }
     
