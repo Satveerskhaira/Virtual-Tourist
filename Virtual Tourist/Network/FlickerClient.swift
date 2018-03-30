@@ -67,7 +67,6 @@ class FlickerClient: NSObject {
                 self.photos = photoData.photos.photo
                 
                 self.store.append(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos))
-                //print(self.store)
                 searchHandler(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos), true, nil)
             } catch {
                 //print("\(String(data: data, encoding: .utf8)!)")

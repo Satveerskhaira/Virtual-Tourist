@@ -8,9 +8,11 @@
 
 import UIKit
 import MapKit
+import CoreData
 private let reuseIdentifier = "Cell"
 
-class FlickrCollectionViewController: UIViewController {
+
+class FlickrCollectionViewController: UIViewController,NSFetchedResultsControllerDelegate, MKMapViewDelegate  {
 
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -22,6 +24,22 @@ class FlickrCollectionViewController: UIViewController {
     var flickerData = FlickerClient.sharedInstance()
     var locationData : Location?
     var countOfSetions = 0
+    var locationCD : LocationCD!
+    //Get the stack
+    let delegate = UIApplication.shared.delegate as! AppDelegate
+    
+    //FetechRequestController
+    
+    
+    lazy var fetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: PhotosCD.self))
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "photoURLCD", ascending: false)]
+        let context = delegate.stack.context
+        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        frc.delegate = self
+        return frc
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,27 +55,32 @@ class FlickrCollectionViewController: UIViewController {
         collectionView.dataSource = self
         
         // Setup map
-        let region = MKCoordinateRegionMake(cordinates, MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+        let region = MKCoordinateRegionMake(cordinates, MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
         mapView.setRegion(region, animated: false)
         let annotation = MKPointAnnotation()
         annotation.coordinate = cordinates
         mapView.addAnnotation(annotation)
+        
+        // Fetch Photo data
+        executeSearch()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
    
         // Fetch data
-        
-        loadData(false, cordinates.latitude, cordinates.longitude) { (location) in
-            self.locationData = location!
-            self.countOfSetions = (self.locationData?.photo?.count)!
-            
-            // Update on main thread
-            performUIUpdatesOnMain {
-                self.collectionView.reloadData()
+        if fetchedhResultController.fetchedObjects == nil {
+            loadData(false, cordinates.latitude, cordinates.longitude) { (location) in
+                self.locationData = location!
+                self.countOfSetions = (self.locationData?.photo?.count)!
+                
+                // Update on main thread
+                performUIUpdatesOnMain {
+                    self.collectionView.reloadData()
+                }
             }
         }
+        
     }
     
     @IBAction func reloadData(_ sender: Any) {
@@ -117,12 +140,19 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
 
 }
 
-// MARK : Delegate for mapview
-extension FlickrCollectionViewController : MKMapViewDelegate {
-    
+// MARK : Core Data fetch for mapview
+extension FlickrCollectionViewController  {
+    // Fetch data
+    func executeSearch() {
+        do {
+            try fetchedhResultController.performFetch()
+        } catch let e as NSError {
+            print("Error while trying to perform a search: \n\(e)\n\(fetchedhResultController)")
+        }
+    }
 }
 
-
+//
 // MARK : Data load from Network or core data
 
 extension FlickrCollectionViewController {
@@ -155,4 +185,13 @@ extension FlickrCollectionViewController {
             }
         }
     }
+}
+
+// MARK : Core Data
+extension FlickrCollectionViewController {
+    
+    func savePhoto() {
+        
+    }
+    
 }

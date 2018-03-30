@@ -79,14 +79,45 @@ extension ViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let viewController = segue.destination as! FlickrCollectionViewController
+        //
         viewController.cordinates = self.cordinates // get this from fetchRequestController
-        // Location object
+        // Location object fetch request
+        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "LocationCD")
+        fr.sortDescriptors = [NSSortDescriptor(key: "latiduteCD", ascending: true)]
+        
+        // Predicate
+        let predlat = NSPredicate(format: "latiduteCD == %f", argumentArray: [cordinates.latitude])
+        //let predLon = NSPredicate(format: "longitudeCD == %f", argumentArray: [cordinates.longitude])
+        fr.predicate = predlat
+       // fr.predicate = predLon
+        
+        let frc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
+        do {
+            try frc.performFetch()
+        } catch {
+            print("Error in fetching")
+        }
+        
+        // Get LocationCD for tapped Annotation
+        viewController.locationCD = frc.fetchedObjects?.first as! LocationCD
+        
+        // Create FetechRequestCortroller for LocationCD
+        let frPhotos = NSFetchRequest<NSFetchRequestResult>(entityName: "PhotosCD")
+        frPhotos.sortDescriptors = [NSSortDescriptor(key: "photoURLCD", ascending: false)]
+        let context = delegate.stack.context
+        let pred = NSPredicate(format: "location == %@", argumentArray: [frc.fetchedObjects?.first as! LocationCD])
+        frPhotos.predicate = pred
+        let frcPhotos = NSFetchedResultsController(fetchRequest: frPhotos, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        // Pass frc and LocationCD to next viewcontroller
+        viewController.fetchedhResultController = frcPhotos
+        
     }
 }
 
 extension ViewController: MKMapViewDelegate {
     
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {        
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        cordinates = (view.annotation?.coordinate)!
         self.performSegue(withIdentifier: "Pin", sender: self)
     }
 }
