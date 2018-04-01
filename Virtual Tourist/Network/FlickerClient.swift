@@ -36,7 +36,7 @@ class FlickerClient: NSObject {
     }
     // MARK : Search Function with latitude and Longitude
     
-    func searchImageWithLatAndLOn(_ methodParameters : [String:AnyObject], searchHandler: @escaping (_ locationData : Location?, _ success : Bool, _ errorString : String?) -> Void) {
+    func searchImageWithLatAndLOn(_ methodParameters : [String:AnyObject], searchHandler: @escaping (_ locationDataPhoto : [Photo]?, _ success : Bool, _ errorString : String?) -> Void) {
         // Create URL
         
         let url = createURL(methodParameters)
@@ -65,9 +65,9 @@ class FlickerClient: NSObject {
                 decoder.dataDecodingStrategy = .deferredToData
                 let photoData = try decoder.decode(FlickerResponse.self, from: data)
                 self.photos = photoData.photos.photo
-                
-                self.store.append(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos))
-                searchHandler(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos), true, nil)
+                //self.store.append(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos))
+                //searchHandler(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos), true, nil)
+                searchHandler(self.photos, true, nil)
             } catch {
                 //print("\(String(data: data, encoding: .utf8)!)")
                 searchHandler(nil, false, "Json decoding fail")
@@ -102,6 +102,8 @@ class FlickerClient: NSObject {
             if error == nil {
                 let downloadImage = UIImage(data: data!)
                 handler(downloadImage!)
+            } else {
+                handler(#imageLiteral(resourceName: "Original"))
             }
         }
         task.resume()

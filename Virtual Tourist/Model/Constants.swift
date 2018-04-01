@@ -89,24 +89,15 @@ struct FlickerResponse : Decodable {
 }
 
 struct Photos : Decodable {
-    //var page : Int?
-    //var pages : Int?
-    //var perpage : Int?
-    //var total : String?
     var photo : [Photo]
 }
 
 struct Photo : Decodable {
     var id : String?
-    //var owner : String?
-    //var secret : String?
-    //var server : String?
-    //var title :String?
     var url : String?
 
     private enum CodingKeys : String, CodingKey {
         case url = "url_m"
-        //case id, owner, secret, server, title
         case id
     }
 }
