@@ -13,7 +13,7 @@ private let reuseIdentifier = "Cell"
 
 
 class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
-
+    
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var newCollection: UIButton!
@@ -28,47 +28,39 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
     let delegate = UIApplication.shared.delegate as! AppDelegate
     
     //FetechRequestController
-    
-        var fetchedhResultController = NSFetchedResultsController<NSFetchRequestResult> ()
-    
-//    lazy var fetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
-//        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: PhotosCD.self))
-//        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "photoURLCD", ascending: false)]
-//        let context = delegate.stack.context
-//        let frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-//        frc.delegate = self
-//        return frc
-//    }()
+    var fetchedhResultController = NSFetchedResultsController<NSFetchRequestResult>()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
-
+        
         // Register cell classes
-       // self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
+        // self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        
         // Do any additional setup after loading the view.
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView?.allowsMultipleSelection = true
         self.newCollection.titleLabel?.text = "New Collection"
+        
         // Setup map
         let region = MKCoordinateRegionMake(cordinates, MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
         mapView.setRegion(region, animated: false)
         let annotation = MKPointAnnotation()
         annotation.coordinate = cordinates
         mapView.addAnnotation(annotation)
-        fetchedhResultController.delegate = self
+        
         // Fetch Photo data
+        fetchedhResultController.delegate = self
         executeSearch()
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-   
+        
         // Fetch data
         if fetchedhResultController.fetchedObjects?.count == 0 {
             savePhoto()
@@ -78,12 +70,12 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
     @IBAction func reloadData(_ sender: Any) {
         if newCollection.titleLabel?.text == "Remove Selected Pictures" {
             newCollection.isEnabled = false
-            deleteSelectPhoto()
-            newCollection.titleLabel?.text = "Remove Selected Pictures"
+            deletePhoto(deleteAll: false)
+            newCollection.titleLabel?.text = "New Collection"
             newCollection.isEnabled = true
         } else {
             newCollection.isEnabled = false
-            deleteAllPhoto()
+            deletePhoto(deleteAll: true)
             newCollection.isEnabled = true
         }
     }
@@ -158,15 +150,15 @@ extension FlickrCollectionViewController {
     
     // Load data from Network or coredata
     func loadData(_ latidute : Double, _ longitude : Double, handler : @escaping (_ locationDataPhotoArray : [Photo]?) -> Void) {
-            flickerData.searchImageWithLatAndLOn(flickerData.createParamtersForURL(latidute, longitude)) { (locationPhotoArray, success, error) in
-                guard (error == nil) else {
-                    print(error!)
-                    return
-                }
-                if success {
-                    handler(locationPhotoArray)
-                }
+        flickerData.searchImageWithLatAndLOn(flickerData.createParamtersForURL(latidute, longitude)) { (locationPhotoArray, success, error) in
+            guard (error == nil) else {
+                print(error!)
+                return
             }
+            if success {
+                handler(locationPhotoArray)
+            }
+        }
         
     }
 }
@@ -188,48 +180,34 @@ extension FlickrCollectionViewController {
                 }
             }
             self.delegate.stack.saveContext()
-            self.executeSearch()
-            // Update on main thread
-            performUIUpdatesOnMain {
-                self.collectionView.reloadData()
-            }
         }
     }
     
-    func deleteAllPhoto() {
-       // First retrive from core data
+    func deletePhoto( deleteAll : Bool) {
+        // First retrive from core data
         executeSearch()
-        do {
-            let context = delegate.stack.context
-            let fetchRequest = fetchedhResultController.fetchRequest
-            do {
-                let objects  = try context.fetch(fetchRequest) as? [NSManagedObject]
-                _ = objects.map{$0.map{context.delete($0)}}
-                delegate.stack.saveContext()
-            } catch let error {
-                print("ERROR DELETING : \(error)")
-            }
-        }
         
-        executeSearch()
-        performUIUpdatesOnMain {
-            self.collectionView.reloadData()
-        }
-        savePhoto()
-    }
-    
-    func deleteSelectPhoto() {
-        executeSearch()
-        var indP = collectionView.indexPathsForSelectedItems
         let context = fetchedhResultController.managedObjectContext
-        for a in indP! {
-            print(a)
-            //var pop = indP?.popLast()
-            let pho = fetchedhResultController.sections?[0].objects![(a.row)] as? NSManagedObject
-            context.delete(pho!)
+        if deleteAll {
+            _ = fetchedhResultController.fetchedObjects.map{$0.map{context.delete($0 as! NSManagedObject)}}
+            delegate.stack.saveContext()
+            savePhoto()
+        } else {
+            let indP = collectionView.indexPathsForSelectedItems
+            let context = fetchedhResultController.managedObjectContext
+            for a in indP! {
+                let pho = fetchedhResultController.sections?[0].objects![(a.row)] as? NSManagedObject
+                context.delete(pho!)
+            }
+            //deselectAllItems()
+            delegate.stack.saveContext()
         }
-        
-        delegate.stack.saveContext()
+    }
+    
+    func deselectAllItems(animated: Bool = false) {
+        for indexPath in collectionView.indexPathsForSelectedItems ?? [] {
+            collectionView.deselectItem(at: indexPath, animated: animated)
+        }
     }
 }
 
@@ -237,15 +215,15 @@ extension FlickrCollectionViewController {
 
 extension FlickrCollectionViewController: NSFetchedResultsControllerDelegate {
     
-    
-   
-    
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch(type) {
-        
+            
         case .insert:
-            collectionView.insertItems(at: [newIndexPath!])
+            self.blockOperations.append(BlockOperation(block: {
+                self.collectionView.insertItems(at: [newIndexPath!])
+            }))
+            
         case .delete:
             self.blockOperations.append(BlockOperation(block: {
                 self.collectionView.deleteItems(at: [indexPath!])
@@ -253,7 +231,6 @@ extension FlickrCollectionViewController: NSFetchedResultsControllerDelegate {
             
         case .update:
             
-           
             collectionView.reloadItems(at: [indexPath!])
         case .move:
             collectionView.deleteItems(at: [indexPath!])

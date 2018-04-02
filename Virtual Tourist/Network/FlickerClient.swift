@@ -65,12 +65,11 @@ class FlickerClient: NSObject {
                 decoder.dataDecodingStrategy = .deferredToData
                 let photoData = try decoder.decode(FlickerResponse.self, from: data)
                 self.photos = photoData.photos.photo
-                //self.store.append(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos))
-                //searchHandler(Location(latidute: self.lat!, longitude: self.log!, photo: self.photos), true, nil)
                 searchHandler(self.photos, true, nil)
+                return
             } catch {
-                //print("\(String(data: data, encoding: .utf8)!)")
                 searchHandler(nil, false, "Json decoding fail")
+                return
             }
             
         }

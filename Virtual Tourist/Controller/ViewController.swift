@@ -110,7 +110,7 @@ extension ViewController {
         let frcPhotos = NSFetchedResultsController(fetchRequest: frPhotos, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
         // Pass frc and LocationCD to next viewcontroller
         viewController.fetchedhResultController = frcPhotos
-        
+       
     }
 }
 
