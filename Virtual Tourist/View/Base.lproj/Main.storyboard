@@ -18,6 +18,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="bF7-qU-iiw">
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <gestureRecognizers/>
+                            </mapView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap Pins to Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SnF-qu-N2I">
                                 <rect key="frame" x="0.0" y="593" width="375" height="74"/>
                                 <color key="backgroundColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -28,10 +32,6 @@
                                 <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="bF7-qU-iiw">
-                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
-                                <gestureRecognizers/>
-                            </mapView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <gestureRecognizers/>
@@ -49,9 +49,15 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" id="FtI-gO-GZp">
-                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="gqk-jw-yLv"/>
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="gqk-jw-yLv">
+                            <connections>
+                                <action selector="deletePinAction:" destination="BYZ-38-t0r" id="HYF-hd-L2j"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="deletePin" destination="SnF-qu-N2I" id="baU-g4-Qtg"/>
+                        <outlet property="deletePinButton" destination="gqk-jw-yLv" id="gRX-0K-FPN"/>
                         <outlet property="mapView" destination="bF7-qU-iiw" id="Hc3-0c-JGN"/>
                         <segue destination="KYN-S1-KDe" kind="show" identifier="Pin" id="FWu-Si-xgL"/>
                     </connections>
@@ -116,14 +122,14 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cfc-he-AF4">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cfc-he-AF4">
                                 <rect key="frame" x="0.0" y="637" width="375" height="30"/>
-                                <color key="backgroundColor" red="0.99942404029999998" green="0.98555368190000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="wT9-Cn-AfL"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <state key="normal" title="New Collection"/>
+                                <state key="normal" title="New Collection">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                                 <connections>
                                     <action selector="reloadData:" destination="KYN-S1-KDe" eventType="touchUpInside" id="dIU-0A-5DD"/>
                                 </connections>

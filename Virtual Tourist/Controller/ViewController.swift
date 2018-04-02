@@ -12,6 +12,7 @@ import CoreData
 class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var deletePin: UILabel!
     
     // MARK: Properties
     var cordinates = CLLocationCoordinate2D()
@@ -66,10 +67,21 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         let annotation = MKPointAnnotation()
         annotation.coordinate = cordinates
         mapView.addAnnotation(annotation)
-        
-        // Save to CareData
-        //_ = LocationCD(latitude: cordinates.longitude, longitude: cordinates.longitude, context: delegate.stack.context)
         saveLocationCD(cordinates.latitude, cordinates.longitude)
+        
+    }
+    @IBOutlet weak var deletePinButton: UIBarButtonItem!
+    @IBAction func deletePinAction(_ sender: Any) {
+        if deletePinButton.tag == 0 {
+           deletePin.isHidden = false
+            deletePinButton.title = "Done"
+            deletePinButton.tag = 1
+        } else {
+            deletePin.isHidden = true
+            deletePinButton.title = "Edit"
+            deletePinButton.tag = 0
+        }
+        
     }
 }
 
@@ -118,7 +130,31 @@ extension ViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         cordinates = (view.annotation?.coordinate)!
-        self.performSegue(withIdentifier: "Pin", sender: self)
+        if deletePinButton.tag == 0 {
+            self.performSegue(withIdentifier: "Pin", sender: self)
+        } else {
+            // Delete pin and remove from core data
+            // Location object fetch request
+            let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "LocationCD")
+            fr.sortDescriptors = [NSSortDescriptor(key: "latiduteCD", ascending: true)]
+            // Predicate
+            let predlat = NSPredicate(format: "latiduteCD == %f", argumentArray: [view.annotation?.coordinate.latitude])
+            fr.predicate = predlat
+            do {
+                let objects = try delegate.stack.context.fetch(fr) as! [NSManagedObject]
+               _ = objects.map{delegate.stack.context.delete($0)}
+                
+                delegate.stack.saveContext()
+                
+            } catch let err {
+                print(err.localizedDescription)
+            }
+            // Remove Annotation as well.
+            print(view.annotation)
+            mapView.removeAnnotation(view.annotation!)
+            
+        }
+        
     }
 }
 
