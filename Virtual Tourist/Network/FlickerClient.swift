@@ -106,7 +106,6 @@ class FlickerClient: NSObject {
             }
         }
         task.resume()
-        
     }
     
     // Make singleton

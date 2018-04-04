@@ -39,6 +39,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         //Set MapView delegate
         mapView.delegate = self
         let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation))
+        //longGesture.minimumPressDuration = 2.0
         mapView.addGestureRecognizer(longGesture)
         
         
@@ -47,7 +48,6 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         for loc in fetchedhResultController.fetchedObjects as! [LocationCD] {
             loadAnnotation(loc.latiduteCD, long: loc.longitudeCD)
         }
-    
     }
 
     // MARK : Add annotation
@@ -59,17 +59,30 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         
     }
     
-    @IBAction func addAnnotation( _ longGesture: UILongPressGestureRecognizer ) {
-        
+
+    @IBAction func addAnnotation( _ longGesture: UIGestureRecognizer ) {
         let locationOnView = longGesture.location(in: mapView)
         cordinates = mapView.convert(locationOnView, toCoordinateFrom: mapView)
+        let oldAnnotations = mapView.annotations.filter({ (annotation) -> Bool in
+            if annotation.coordinate.latitude == cordinates.latitude && annotation.coordinate.longitude == cordinates.longitude {
+                return true
+            } else {
+                return false
+            }
+        })
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = cordinates
+        mapView.removeAnnotations(oldAnnotations)
         mapView.addAnnotation(annotation)
         saveLocationCD(cordinates.latitude, cordinates.longitude)
         
     }
+    
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]){
+        print(views)
+    }
+    
     @IBOutlet weak var deletePinButton: UIBarButtonItem!
     @IBAction func deletePinAction(_ sender: Any) {
         if deletePinButton.tag == 0 {
@@ -99,9 +112,7 @@ extension ViewController {
         
         // Predicate
         let predlat = NSPredicate(format: "latiduteCD == %f", argumentArray: [cordinates.latitude])
-        //let predLon = NSPredicate(format: "longitudeCD == %f", argumentArray: [cordinates.longitude])
         fr.predicate = predlat
-       // fr.predicate = predLon
         
         let frc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
         do {

@@ -2,7 +2,7 @@
 //  LocationCD+CoreDataProperties.swift
 //  Virtual Tourist
 //
-//  Created by Satveer Singh on 3/25/18.
+//  Created by Satveer Singh on 4/2/18.
 //  Copyright © 2018 Satveer Singh. All rights reserved.
 //
 //

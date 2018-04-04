@@ -49,6 +49,7 @@ class CoreDataStack {
         
         context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         context.parent = persistingContext
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         
         // Create a background context child of main context
         backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)

@@ -11,7 +11,6 @@ import MapKit
 import CoreData
 private let reuseIdentifier = "Cell"
 
-
 class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
     
     @IBOutlet weak var mapView: MKMapView!
@@ -34,18 +33,17 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-        
-        // Register cell classes
-        // self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         
         // Do any additional setup after loading the view.
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView?.allowsMultipleSelection = true
+        collectionView.dragInteractionEnabled = true
         self.newCollection.titleLabel?.text = "New Collection"
-        
+
+        //let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongGesture))
+        //collectionView.addGestureRecognizer(longGesture)
+
         // Setup map
         let region = MKCoordinateRegionMake(cordinates, MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
         mapView.setRegion(region, animated: false)
@@ -67,8 +65,27 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
         }
     }
     
+
+//    @IBAction func handleLongGesture(gesture: UILongPressGestureRecognizer) {
+//        switch(gesture.state) {
+//
+//        case .began:
+//            guard let selectedIndexPath = collectionView.indexPathForItem(at: gesture.location(in: collectionView)) else {
+//                break
+//            }
+//            collectionView.beginInteractiveMovementForItem(at: selectedIndexPath)
+//        case .changed:
+//            collectionView.updateInteractiveMovementTargetPosition(gesture.location(in: gesture.view!))
+//        case .ended:
+//            collectionView.endInteractiveMovement()
+//        default:
+//            collectionView.cancelInteractiveMovement()
+//        }
+//    }
+    
     @IBAction func reloadData(_ sender: Any) {
-        if newCollection.titleLabel?.text == "Remove Selected Pictures" {
+        
+        if newCollection.tag == 1 {
             newCollection.isEnabled = false
             deletePhoto(deleteAll: false)
             newCollection.titleLabel?.text = "New Collection"
@@ -98,15 +115,11 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! FlickrCollectionViewCell        
         // fetched data
         let photoData = fetchedhResultController.object(at: indexPath) as! PhotosCD
-        let imageURL = URL(string: photoData.photoURLCD!)!
         cell.activityIndicator.startAnimating()
         // Download image from network
-        flickerData.loadImage(imageURL) { (image) in
-            performUIUpdatesOnMain {
-                cell.activityIndicator.stopAnimating()
-                cell.flickrImage.image = image
-            }
-        }
+        cell.setPhotoCellWith(photo: photoData)
+        //cell.photoCD =
+        
         return cell
     }
     
@@ -116,9 +129,9 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
         
         let cell = collectionView.cellForItem(at: indexPath) as! FlickrCollectionViewCell
         cell.flickrImage.alpha = 0.2
-        
         if (collectionView.indexPathsForSelectedItems?.count)! == 1 {
             self.newCollection.titleLabel?.text = "Remove Selected Pictures"
+            self.newCollection.tag = 1
         }
     }
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
@@ -126,8 +139,18 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
         cell.flickrImage.alpha = 1
         if (collectionView.indexPathsForSelectedItems?.count)! == 0 {
             self.newCollection.titleLabel?.text = "New Collection"
+            self.newCollection.tag = 0
         }
     }
+    
+//    func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
+//        return true
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+//        print(sourceIndexPath.item)
+//        print(destinationIndexPath.item)
+//    }
 }
 
 // MARK : Core Data fetch for mapview
@@ -199,16 +222,10 @@ extension FlickrCollectionViewController {
                 let pho = fetchedhResultController.sections?[0].objects![(a.row)] as? NSManagedObject
                 context.delete(pho!)
             }
-            //deselectAllItems()
             delegate.stack.saveContext()
         }
     }
     
-    func deselectAllItems(animated: Bool = false) {
-        for indexPath in collectionView.indexPathsForSelectedItems ?? [] {
-            collectionView.deselectItem(at: indexPath, animated: animated)
-        }
-    }
 }
 
 // MARK: - CoreDataTableViewController: NSFetchedResultsControllerDelegate
@@ -226,6 +243,7 @@ extension FlickrCollectionViewController: NSFetchedResultsControllerDelegate {
             
         case .delete:
             self.blockOperations.append(BlockOperation(block: {
+                self.newCollection.tag = 0
                 self.collectionView.deleteItems(at: [indexPath!])
             }))
             
