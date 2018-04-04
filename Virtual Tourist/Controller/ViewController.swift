@@ -79,10 +79,6 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         
     }
     
-    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]){
-        print(views)
-    }
-    
     @IBOutlet weak var deletePinButton: UIBarButtonItem!
     @IBAction func deletePinAction(_ sender: Any) {
         if deletePinButton.tag == 0 {
