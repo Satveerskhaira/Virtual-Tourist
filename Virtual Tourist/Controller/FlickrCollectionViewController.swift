@@ -88,7 +88,7 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
         if newCollection.tag == 1 {
             newCollection.isEnabled = false
             deletePhoto(deleteAll: false)
-            newCollection.titleLabel?.text = "New Collection"
+            newCollection.titleLabel?.text = "Reload New Collection"
             newCollection.isEnabled = true
         } else {
             newCollection.isEnabled = false
@@ -118,8 +118,6 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
         cell.activityIndicator.startAnimating()
         // Download image from network
         cell.setPhotoCellWith(photo: photoData)
-        //cell.photoCD =
-        
         return cell
     }
     
@@ -130,7 +128,7 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
         let cell = collectionView.cellForItem(at: indexPath) as! FlickrCollectionViewCell
         cell.flickrImage.alpha = 0.2
         if (collectionView.indexPathsForSelectedItems?.count)! == 1 {
-            self.newCollection.titleLabel?.text = "Remove Selected Pictures"
+            self.newCollection.titleLabel?.text = "Remove Pictures"
             self.newCollection.tag = 1
         }
     }
@@ -138,7 +136,7 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
         let cell = collectionView.cellForItem(at: indexPath) as! FlickrCollectionViewCell
         cell.flickrImage.alpha = 1
         if (collectionView.indexPathsForSelectedItems?.count)! == 0 {
-            self.newCollection.titleLabel?.text = "New Collection"
+            self.newCollection.titleLabel?.text = "Reload New Collection"
             self.newCollection.tag = 0
         }
     }

@@ -13,7 +13,7 @@ class FlickerClient: NSObject {
     //MARK: Properties:
     var photos = [Photo]()
     var location: Location?
-    var store = [Location]()
+    
     var lat : Double?
     var log : Double?
     let session = URLSession.shared
@@ -24,7 +24,6 @@ class FlickerClient: NSObject {
         let methodParameters = [
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
-            //Constants.FlickrParameterKeys.BoundingBox: bboxString(),
             Constants.FlickrParameterKeys.latitude : latitude,
             Constants.FlickrParameterKeys.logitude : logitude,
             Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,

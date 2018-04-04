@@ -10,17 +10,17 @@ import UIKit
 import MapKit
 import CoreData
 class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
-
+    
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var deletePin: UILabel!
     
     // MARK: Properties
     var cordinates = CLLocationCoordinate2D()
     
-     //Get the stack
+    //Get the stack
     let delegate = UIApplication.shared.delegate as! AppDelegate
     
-     //FetechRequestController
+    //FetechRequestController
     
     
     lazy var fetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
@@ -44,12 +44,12 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         
         
         // Load Annotation on map
-       
+        
         for loc in fetchedhResultController.fetchedObjects as! [LocationCD] {
             loadAnnotation(loc.latiduteCD, long: loc.longitudeCD)
         }
     }
-
+    
     // MARK : Add annotation
     
     func loadAnnotation(_ lat : Double, long : Double) {
@@ -59,7 +59,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         
     }
     
-
+    
     @IBAction func addAnnotation( _ longGesture: UIGestureRecognizer ) {
         let locationOnView = longGesture.location(in: mapView)
         cordinates = mapView.convert(locationOnView, toCoordinateFrom: mapView)
@@ -86,7 +86,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
     @IBOutlet weak var deletePinButton: UIBarButtonItem!
     @IBAction func deletePinAction(_ sender: Any) {
         if deletePinButton.tag == 0 {
-           deletePin.isHidden = false
+            deletePin.isHidden = false
             deletePinButton.title = "Done"
             deletePinButton.tag = 1
         } else {
@@ -133,7 +133,7 @@ extension ViewController {
         let frcPhotos = NSFetchedResultsController(fetchRequest: frPhotos, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
         // Pass frc and LocationCD to next viewcontroller
         viewController.fetchedhResultController = frcPhotos
-       
+        
     }
 }
 
@@ -153,7 +153,7 @@ extension ViewController: MKMapViewDelegate {
             fr.predicate = predlat
             do {
                 let objects = try delegate.stack.context.fetch(fr) as! [NSManagedObject]
-               _ = objects.map{delegate.stack.context.delete($0)}
+                _ = objects.map{delegate.stack.context.delete($0)}
                 
                 delegate.stack.saveContext()
                 
@@ -161,7 +161,6 @@ extension ViewController: MKMapViewDelegate {
                 print(err.localizedDescription)
             }
             // Remove Annotation as well.
-            print(view.annotation)
             mapView.removeAnnotation(view.annotation!)
             
         }
@@ -178,8 +177,8 @@ extension ViewController {
         if let locationEntity = NSEntityDescription.insertNewObject(forEntityName: "LocationCD", into: context) as? LocationCD {
             locationEntity.latiduteCD = latitude
             locationEntity.longitudeCD = Longitude
-                delegate.stack.saveContext()
-                executeSearch()
+            delegate.stack.saveContext()
+            executeSearch()
         }
     }
     
