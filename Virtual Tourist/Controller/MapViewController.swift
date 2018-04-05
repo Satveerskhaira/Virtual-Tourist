@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 import CoreData
-class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
+class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var deletePin: UILabel!
@@ -39,7 +39,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
         //Set MapView delegate
         mapView.delegate = self
         let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation))
-        //longGesture.minimumPressDuration = 2.0
+        longGesture.minimumPressDuration = 0.5
         mapView.addGestureRecognizer(longGesture)
         
         
@@ -96,7 +96,7 @@ class ViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
 // MARK : Navigation
 
-extension ViewController {
+extension MapViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let viewController = segue.destination as! FlickrCollectionViewController
@@ -113,8 +113,8 @@ extension ViewController {
         let frc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context, sectionNameKeyPath: nil, cacheName: nil)
         do {
             try frc.performFetch()
-        } catch {
-            print("Error in fetching")
+        } catch let e as NSError{
+            print("\(Constants.errorMessage.fetchResquestError) and error is \(e)")
         }
         
         // Get LocationCD for tapped Annotation
@@ -133,7 +133,7 @@ extension ViewController {
     }
 }
 
-extension ViewController: MKMapViewDelegate {
+extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         cordinates = (view.annotation?.coordinate)!
@@ -153,8 +153,8 @@ extension ViewController: MKMapViewDelegate {
                 
                 delegate.stack.saveContext()
                 
-            } catch let err {
-                print(err.localizedDescription)
+            } catch let e as NSError {
+                print("\(Constants.errorMessage.fetchResquestError) and error is \(e)")
             }
             // Remove Annotation as well.
             mapView.removeAnnotation(view.annotation!)
@@ -165,7 +165,7 @@ extension ViewController: MKMapViewDelegate {
 }
 
 // MARK : Coredata logic
-extension ViewController {
+extension MapViewController {
     
     // Save data
     func saveLocationCD(_ latitude : Double, _ Longitude : Double) {
@@ -183,7 +183,7 @@ extension ViewController {
         do {
             try fetchedhResultController.performFetch()
         } catch let e as NSError {
-            print("Error while trying to perform a search: \n\(e)\n\(fetchedhResultController)")
+            print("\(Constants.errorMessage.fetchResquestError) and error is \(e)")
         }
     }
 }

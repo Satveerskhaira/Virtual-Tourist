@@ -78,11 +78,11 @@ extension FlickrCollectionViewCell: NSFetchedResultsControllerDelegate {
     
     // MARK : Save to Core data
     func savePhoto(image : UIImage, photoCD : PhotosCD) {
-            // Save data retrieved from Network into Core Data
-                if let imageEntity = NSEntityDescription.insertNewObject(forEntityName: "ImageCD", into: (self.delegate.stack.context)) as? ImageCD {
-                    imageEntity.imageCD = UIImagePNGRepresentation(image) as NSData?
-                    imageEntity.photo = photoCD
-                }
-            self.delegate.stack.saveContext()
+        // Save data retrieved from Network into Core Data
+        if let imageEntity = NSEntityDescription.insertNewObject(forEntityName: "ImageCD", into: (self.delegate.stack.context)) as? ImageCD {
+            imageEntity.imageCD = UIImagePNGRepresentation(image) as NSData?
+            imageEntity.photo = photoCD
+        }
+        self.delegate.stack.saveContext()
     }
 }

@@ -69,19 +69,16 @@ struct Constants {
     struct FlickrResponseValues {
         static let OKStatus = "ok"
     }
+    
+    struct errorMessage {
+        static let  statusCodeError = "Your request returned a status code other than 2xx!"
+        static let apiDataError = "Your request did not returned data"
+        static let jsonDecodingError = "Json decoding fail"
+        static let fetchResquestError = "Error while trying to perform a fetech request"
+        
+    }
 }
-/*
- let dic = [ "photos": [
- "page": 1,
- "pages": 1,
- "perpage": 100,
- "total": 1,
- "photo":
- [ "id": "3184568924", "owner": "59787340@N00", "secret": "0fc26e8e2c", "server": "3258", "farm": 4, "title": "Nahal Giborim (Wadi Rushmiya) - Haifa", "ispublic": 1, "isfriend": 0, "isfamily": 0, "url_m": "https://farm4.staticflickr.com", "height_m": "333", "width_m": "500" ]
- ],
- "stat": "ok" ] as [String : AnyObject]
- 
- */
+
 
 // MARK: Flicker Response decoder
 struct FlickerResponse : Decodable {
@@ -111,10 +108,3 @@ struct Location: Equatable {
         return lhs.latidute == rhs.latidute && lhs.longitude == rhs.longitude
     }
 }
-
-
-
-
-
-
-

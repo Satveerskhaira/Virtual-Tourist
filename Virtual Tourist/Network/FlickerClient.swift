@@ -49,12 +49,12 @@ class FlickerClient: NSObject {
             
             /* GUARD: Did we get a successful 2XX response? */
             guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
-                searchHandler(nil, false, "Your request returned a status code other than 2xx!")
+                searchHandler(nil, false, Constants.errorMessage.statusCodeError)
                 return
             }
             /* GUARD: Did we get data  */
             guard let data = data else {
-                searchHandler(nil, false, "Your request did not returned data")
+                searchHandler(nil, false, Constants.errorMessage.apiDataError)
                 return
             }
             
@@ -67,7 +67,7 @@ class FlickerClient: NSObject {
                 searchHandler(self.photos, true, nil)
                 return
             } catch {
-                searchHandler(nil, false, "Json decoding fail")
+                searchHandler(nil, false, Constants.errorMessage.jsonDecodingError)
                 return
             }
             
@@ -78,7 +78,7 @@ class FlickerClient: NSObject {
     
     // MARK : Helper method to create URL from parameter
     
-    func createURL(_ parameters : [String:AnyObject]) -> URL{
+    fileprivate func createURL(_ parameters : [String:AnyObject]) -> URL{
         
         var components = URLComponents()
         components.host = Constants.Flickr.APIHost

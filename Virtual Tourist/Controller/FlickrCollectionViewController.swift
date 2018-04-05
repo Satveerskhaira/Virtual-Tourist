@@ -40,10 +40,8 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
         collectionView?.allowsMultipleSelection = true
         collectionView.dragInteractionEnabled = true
         self.newCollection.titleLabel?.text = "New Collection"
-
-        //let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongGesture))
-        //collectionView.addGestureRecognizer(longGesture)
-
+        
+        
         // Setup map
         let region = MKCoordinateRegionMake(cordinates, MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
         mapView.setRegion(region, animated: false)
@@ -65,23 +63,6 @@ class FlickrCollectionViewController: UIViewController, MKMapViewDelegate  {
         }
     }
     
-
-//    @IBAction func handleLongGesture(gesture: UILongPressGestureRecognizer) {
-//        switch(gesture.state) {
-//
-//        case .began:
-//            guard let selectedIndexPath = collectionView.indexPathForItem(at: gesture.location(in: collectionView)) else {
-//                break
-//            }
-//            collectionView.beginInteractiveMovementForItem(at: selectedIndexPath)
-//        case .changed:
-//            collectionView.updateInteractiveMovementTargetPosition(gesture.location(in: gesture.view!))
-//        case .ended:
-//            collectionView.endInteractiveMovement()
-//        default:
-//            collectionView.cancelInteractiveMovement()
-//        }
-//    }
     
     @IBAction func reloadData(_ sender: Any) {
         
@@ -140,15 +121,6 @@ extension FlickrCollectionViewController: UICollectionViewDelegate, UICollection
             self.newCollection.tag = 0
         }
     }
-    
-//    func collectionView(_ collectionView: UICollectionView, canMoveItemAt indexPath: IndexPath) -> Bool {
-//        return true
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-//        print(sourceIndexPath.item)
-//        print(destinationIndexPath.item)
-//    }
 }
 
 // MARK : Core Data fetch for mapview
@@ -158,7 +130,7 @@ extension FlickrCollectionViewController  {
         do {
             try fetchedhResultController.performFetch()
         } catch let e as NSError {
-            print("Error while trying to perform a search: \n\(e)\n\(fetchedhResultController)")
+            print("\(Constants.errorMessage.fetchResquestError) and error is \(e)")
         }
     }
 }
